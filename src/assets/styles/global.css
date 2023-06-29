@@ -1,0 +1,19 @@
+* {
+    margin: 0;
+    padding: 0;
+
+}
+body{
+    font-family: Arial;
+    background: #383838;
+    color: white;
+
+}
+.btn{
+    border: none;
+    outline: none;
+    text-decoration: none;
+    color: lightgray;
+    border-radius: 3px;
+
+}
