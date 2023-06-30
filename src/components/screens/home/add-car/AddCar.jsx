@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import styles from './AddCar.module.css'
 import Navigation from "../nav/Navigation.jsx";
 import {addDoc, collection} from "firebase/firestore"
-import {db} from "../../../services/firebaseConfig.js";
+import {db, auth} from "../../../services/firebaseConfig.js";
 import {useNavigate} from "react-router-dom";
+import {AuthContext} from "../../../context/auth-context.js";
+
 
 const clearData = {
     name: '',
@@ -11,9 +13,10 @@ const clearData = {
     image: ''
 }
 
-
 const AddCar = () => {
     const [data, setData] = useState(clearData)
+
+    const { user } = useContext(AuthContext)
 
     const navigate = useNavigate()
     const carsCollectionRef = collection(db, 'cars')
@@ -22,8 +25,14 @@ const AddCar = () => {
         await addDoc(carsCollectionRef, {
             name: data.name,
             price: data.price,
-            image: data.image}
+            image: data.image,
+            author: {
+                uid: user.uid,
+                name: user.displayName
+            }
+        }
         )
+
         navigate('/')
     }
 

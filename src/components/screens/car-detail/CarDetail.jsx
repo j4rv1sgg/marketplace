@@ -1,35 +1,41 @@
 import React, {useEffect, useState} from 'react';
-import {useParams} from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import Caritem from "../home/car-item/Caritem.jsx";
 import Navigation from "../home/nav/Navigation.jsx";
-
-import { doc, getDoc } from "firebase/firestore";
-import {db} from "../../services/firebaseConfig.js";
-
+import { getListItem, removeListItem} from "../../services/firebaseService.js";
 
 
 const CarDetail = () => {
     const { id } = useParams()
+    const navigate = useNavigate()
     const [car, setCar] = useState({})
 
-    const docRef = doc(db, "cars", id);
+    const setup = async () => {
+        setCar(await getListItem("cars", id))
+    }
+
+    const remove = async () => {
+        await removeListItem("cars", id)
+        navigate('/')
+    }
 
     useEffect(() => {
-        const getCar = async () => {
-            const res = await getDoc(docRef)
-            if(res.exists()){
-                setCar(res.data())
-            } else console.log('Failed request')
-        }
-        getCar()
-    }, [id])
-
-    if (!car?.name) return <p>Car is not found</p>
+        setup()
+    },[])
 
     return (
         <div>
             <Navigation/>
-            <Caritem car = {car} />
+            {car.name ?
+                (
+                    <div>
+                        <Caritem car = {car} />
+                        <p>Seller: {car.author.name} </p>
+                        <button className="btn" onClick={() => remove()}> Remove </button>
+                    </div>
+                ) : <p>Car is not found</p>
+
+            }
         </div>
     );
 };
