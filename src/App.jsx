@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {AuthContext} from "./components/context/auth-context.js";
 import Router from "./components/UI/Router.jsx";
-import { auth } from './components/services/firebaseConfig.js'
-
 
 const App = () => {
     const [user, setUser] = useState(null)
-
 
     useEffect(() => {
         setUser(JSON.parse(localStorage.getItem("user")))
@@ -15,7 +12,9 @@ const App = () => {
     return (
         <div>
             <AuthContext.Provider value={{user, setUser}}>
-                <Router />
+
+                        <Router />
+
             </AuthContext.Provider>
         </div>
     );

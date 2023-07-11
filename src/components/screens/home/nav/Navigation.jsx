@@ -31,13 +31,16 @@ const Navigation = () => {
 
             })}
             {currentUser.user ?
-                <Link className='btn' to='/login' onClick={signOut}>Sigh Out</Link>
+                <>
+                    <Link className='btn' to='/profile'>Profile</Link>
+                    <Link className='btn' to='/login' onClick={signOut}>Sign Out</Link>
+                </>
                 :
-                <Link className='btn' to='/login' >Log In</Link>
+                    <Link className='btn' to='/login'>Log In</Link>
+                }
 
-            }
 
-        </div>
+</div>
     );
 };
 

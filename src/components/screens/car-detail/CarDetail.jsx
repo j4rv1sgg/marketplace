@@ -1,8 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import { useParams, useNavigate} from "react-router-dom";
-import Caritem from "../home/car-item/Caritem.jsx";
 import Navigation from "../home/nav/Navigation.jsx";
 import { getListItem, removeListItem} from "../../services/firebaseService.js";
+import {auth} from "../../services/firebaseConfig.js";
+import 'swiper/css';
+import Slider from "../../UI/swiper/Swiper.jsx";
+import {getPriceFormat} from "../../services/getPriceFormat.js";
+
 
 
 const CarDetail = () => {
@@ -23,19 +27,29 @@ const CarDetail = () => {
         setup()
     },[])
 
+
     return (
         <div>
             <Navigation/>
-            {car.name ?
+            {car.brand ?
                 (
                     <div>
-                        <Caritem car = {car} />
+                        <Slider images = {car.images}/>
+                        <h1>{car.brand} {car.model}</h1>
+                        <h2>{getPriceFormat(car.price)}</h2>
                         <p>Seller: {car.author.name} </p>
-                        <button className="btn" onClick={() => remove()}> Remove </button>
-                    </div>
-                ) : <p>Car is not found</p>
+                        {auth.currentUser.uid === car.author.uid && (
+                            <button className="btn" onClick={remove}> Remove </button>
+                        )}
+                        {/*<p>Added {moment().startOf(car.added).fromNow()}</p>*/}
 
+
+                    </div>
+
+                ) : <p>Car is not found</p>
             }
+
+
         </div>
     );
 };

@@ -2,49 +2,85 @@ import React, {useContext, useState} from 'react';
 import styles from './AddCar.module.css'
 import Navigation from "../nav/Navigation.jsx";
 import {addDoc, collection} from "firebase/firestore"
-import {db, auth} from "../../../services/firebaseConfig.js";
+import {db} from "../../../services/firebaseConfig.js";
 import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../../../context/auth-context.js";
+import { getTime } from '../../../services/getCurrentTime.js'
+import Input from "../../../UI/input/Input.jsx";
 
 
-const clearData = {
-    name: '',
-    price: '',
-    image: ''
-}
 
-const AddCar = () => {
+const AddCar = ({ car }) => {
+    console.log(car)
+    let clearData = {
+        brand: '',
+        model: '',
+        year: '',
+        price: '',
+        images: ''
+    }
+
+    if(car){
+         clearData = {
+            brand: car.brand,
+            model: car.model,
+            year: car.year,
+            price: car.price,
+            images: ''
+        }
+
+    }
+
+
+
     const [data, setData] = useState(clearData)
+    const [images, setImages] = useState([])
+    const [imagesInput, setImagesValue] = useState('')
 
     const { user } = useContext(AuthContext)
 
     const navigate = useNavigate()
     const carsCollectionRef = collection(db, 'cars')
 
+
     const createCar = async () => {
+
         await addDoc(carsCollectionRef, {
-            name: data.name,
-            price: data.price,
-            image: data.image,
+            brand: data.brand,
+            model: data.model,
+            price: Number(data.price),
+            year: data.year,
+            images: images,
             author: {
                 uid: user.uid,
                 name: user.displayName
-            }
+            },
+            added: getTime()
         }
         )
 
         navigate('/')
     }
 
+    const addImage = () => {
+        setImages([...images, imagesInput])
+        setImagesValue('')
+    }
+
+
+
 
     return (
         <>
             <Navigation/>
             <div className={styles.form}>
-                <input placeholder="Title" onChange={e => setData(prev => ({...prev, name: e.target.value}))} value={data.name} type="text"/>
-                <input placeholder="Price" onChange={e => setData(prev => ({...prev, price: e.target.value}))} value={data.price} type="text"/>
-                <input placeholder="Image" onChange={e => setData(prev => ({...prev, image: e.target.value}))} value={data.image} type="text"/>
-                <button className="add" onClick={ createCar } >Add</button>
+                <Input placeholder={"Brand"} setter={setData} field={'brand'} value={data.brand} type={"text"}/>
+                <Input placeholder={"Model"} setter={setData} field={'model'} value={data.model} type={"text"}/>
+                <Input placeholder={"Price"} setter={setData} field={'price'} value={data.price} type={"text"}/>
+                <Input placeholder={"Year of production"} setter={setData} field={'year'} value={data.year} type={"text"}/>
+                <input placeholder="Add images" onChange={(e) => setImagesValue(e.target.value)} value={imagesInput} type='text'/>
+                <button onClick={addImage}> Add image </button>
+                <button className="add" onClick={createCar} >Add car</button>
             </div>
         </>
     );
