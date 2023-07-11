@@ -6,11 +6,13 @@ import {getListItem} from "../../services/firebaseService.js";
 
 const CarEdit = () => {
     const { id } = useParams()
+    let result
     const getCar = async () => {
-        const car = await getListItem('cars', id)
-        return car
+        result = await getListItem('cars', id)
+        return result
     }
-    console.log(getCar())
+
+    console.log(result)
 
     return (
         <div>

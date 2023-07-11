@@ -11,7 +11,7 @@ import Input from "../../../UI/input/Input.jsx";
 
 
 const AddCar = ({ car }) => {
-    console.log(car)
+    console.log(car.price)
     let clearData = {
         brand: '',
         model: '',
@@ -30,7 +30,7 @@ const AddCar = ({ car }) => {
         }
 
     }
-
+    console.log(Boolean(car))
 
 
     const [data, setData] = useState(clearData)
