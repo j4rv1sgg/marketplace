@@ -1,7 +1,9 @@
-import {collection, deleteDoc, doc, getDoc, getDocs, query, where, orderBy, startAt, limit} from "firebase/firestore";
+import {collection, deleteDoc, doc, getDoc, getDocs, query, updateDoc ,where} from "firebase/firestore";
 import {db} from "./firebaseConfig.js";
+import {ref, listAll, getDownloadURL} from "firebase/storage"
+import {storage} from "./firebaseConfig.js";
 
-export const getList = async ({ path, filter_by, order_by }) => {
+export const getList = async ({ path, filter_by, order_by }) => {   // get list of cars
     const collectionRef = collection(db, path)
     let queryData
     const list = []
@@ -17,9 +19,21 @@ export const getList = async ({ path, filter_by, order_by }) => {
 
     const data = await getDocs(queryData)
 
-    data.forEach(doc => {
+    data.forEach( (doc) => {
         const item = {...doc.data(), id: doc.id}
+        const imageListRef = ref(storage, `${doc.id}`)
+        listAll(imageListRef).then((response) => {
+
+            response.items.forEach((image) => {
+
+                getDownloadURL(image).then((url) => {
+
+                    item.images.push(url)
+                })
+            })
+        })
         item.images = Object.values(item.images)
+
         list.push(item)
     })
 
@@ -34,7 +48,7 @@ export const getList = async ({ path, filter_by, order_by }) => {
 }
 
 
-export const getListItem = async (path, id) => {        // Single car
+export const getListItem = async (path, id) => {        // get single car
     const res = await getDoc(doc(db, path, id))
 
     if(res.exists()){
@@ -48,6 +62,20 @@ export const getListItem = async (path, id) => {        // Single car
         console.log('Failed request')
     }
 
+}
+
+
+export const updateListItem = async (path, id, updatedFields ) => {
+
+    const docRef = doc(db, path, id)
+
+    updateDoc(docRef, updatedFields)
+        .then(() => {
+            console.log("Fields are updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error in updating fields", error);
+        });
 }
 
 export const removeListItem = async (path, id) => {

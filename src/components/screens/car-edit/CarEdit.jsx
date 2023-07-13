@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import Navigation from "../home/nav/Navigation.jsx";
 import AddCar from "../home/add-car/AddCar.jsx";
 import {useParams} from "react-router-dom";
-import {getListItem} from "../../services/firebaseService.js";
+import {getListItem, updateListItem} from "../../services/firebaseService.js";
 
 const CarEdit = () => {
     const [car, setCar] = useState(null);
@@ -16,7 +15,6 @@ const CarEdit = () => {
 
         getCar();
     }, [id]);
-
 
 
     return (

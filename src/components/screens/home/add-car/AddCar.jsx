@@ -7,17 +7,20 @@ import {useNavigate} from "react-router-dom";
 import {AuthContext} from "../../../context/auth-context.js";
 import { getTime } from '../../../services/getCurrentTime.js'
 import Input from "../../../UI/input/Input.jsx";
-
+import {updateListItem} from "../../../services/firebaseService.js";
+import {storage} from "../../../services/firebaseConfig.js";
+import {getDownloadURL, ref, uploadBytes} from "firebase/storage"
+import { v4 } from 'uuid'
 
 
 const AddCar = ({ car }) => {
-    console.log(car.price)
+
     let clearData = {
         brand: '',
         model: '',
         year: '',
         price: '',
-        images: ''
+
     }
 
     if(car){
@@ -26,16 +29,13 @@ const AddCar = ({ car }) => {
             model: car.model,
             year: car.year,
             price: car.price,
-            images: ''
+
         }
 
     }
-    console.log(Boolean(car))
-
-
     const [data, setData] = useState(clearData)
-    const [images, setImages] = useState([])
-    const [imagesInput, setImagesValue] = useState('')
+
+    const [imageUpload, setImageUpload] = useState([])
 
     const { user } = useContext(AuthContext)
 
@@ -44,30 +44,45 @@ const AddCar = ({ car }) => {
 
 
     const createCar = async () => {
+        const imageUrlArray = await imageUrls();
 
         await addDoc(carsCollectionRef, {
             brand: data.brand,
             model: data.model,
             price: Number(data.price),
             year: data.year,
-            images: images,
+            images: imageUrlArray,
             author: {
                 uid: user.uid,
                 name: user.displayName
             },
             added: getTime()
-        }
-        )
+        });
 
-        navigate('/')
+        navigate('/');
+    };
+
+
+    const uploadImageToStore = async (imageFile, path) => {
+        const imagePath = `${path}/${imageFile.name + v4()}`
+        const imageRef = ref(storage, imagePath)
+        await uploadBytes(imageRef, imageFile)
+        return await getDownloadURL(ref(storage, imagePath))
     }
 
-    const addImage = () => {
-        setImages([...images, imagesInput])
-        setImagesValue('')
-    }
-
-
+    const imageUrls = async () => {
+        const urls = [];
+        await Promise.all([...imageUpload].map(async (file) => {
+            const imageId = v4();
+            const url = await uploadImageToStore(file, `cars/`);
+            urls.push({
+                url: url,
+                name: file.name,
+                id: imageId
+            });
+        }));
+        return urls;
+    };
 
 
     return (
@@ -78,9 +93,24 @@ const AddCar = ({ car }) => {
                 <Input placeholder={"Model"} setter={setData} field={'model'} value={data.model} type={"text"}/>
                 <Input placeholder={"Price"} setter={setData} field={'price'} value={data.price} type={"text"}/>
                 <Input placeholder={"Year of production"} setter={setData} field={'year'} value={data.year} type={"text"}/>
-                <input placeholder="Add images" onChange={(e) => setImagesValue(e.target.value)} value={imagesInput} type='text'/>
-                <button onClick={addImage}> Add image </button>
-                <button className="add" onClick={createCar} >Add car</button>
+
+                <input type="file" multiple onChange={(event) => setImageUpload(event.target.files)}/>
+
+                {
+                    !car
+                        ?
+                        <>
+                            <button onClick={createCar} >Add car</button>
+
+                            {/*<button onClick={imageUrls} >Add car</button>*/}
+                            {/*<button onClick={()=>console.log(urls)} >Add car</button>*/}
+                        </>
+                        :
+                        <>
+                            <button onClick={()=>updateListItem('cars', car.id, data)} > Save </button>
+                        </>
+                }
+
             </div>
         </>
     );

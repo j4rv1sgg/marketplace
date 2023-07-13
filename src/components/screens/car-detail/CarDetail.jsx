@@ -28,13 +28,15 @@ const CarDetail = () => {
     },[])
 
 
+
     return (
         <div>
             <Navigation/>
             {car.brand ?
                 (
                     <div>
-                        <Slider images = {car.images}/>
+
+                        <Slider images = {car.images.map( obj => { return obj.url })} />
                         <h1>{car.brand} {car.model}</h1>
                         <h2>{getPriceFormat(car.price)}</h2>
                         <p>Seller: {car.author.name} </p>

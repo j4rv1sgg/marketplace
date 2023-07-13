@@ -16,7 +16,7 @@ const Caritem = ({ car, edit}) => {
                 className={styles.image}
                 onClick={()=>navigate(`/car/${car.id}`)}
                 style={{
-                    backgroundImage: `url(${car.images[0]}`,
+                    backgroundImage: `url(${car.images[0].url}`,
                     cursor: 'pointer'
                 }}
             />
